@@ -42,7 +42,7 @@
   }
 
   function footer() {
-    return '<footer class="page-footer"><span>呆萌价返现功能 · V1.1 · 2026.10.10</span><span>PRD 及设计评审 · 原图与规则说明</span></footer>';
+    return '<footer class="page-footer"><span>呆萌价返现功能 · V1.2 · 2026.10.10</span><span>PRD 及设计评审 · 原图与规则说明</span></footer>';
   }
 
   function docsTabs(selected) {
@@ -50,7 +50,7 @@
   }
 
   function overview() {
-    return `${pageLead("一、PRD及说明", "PRD及说明", "返现的业务规则、三端流程与设计原图，按 V1.1 产品评审稿整理。")}${docsTabs("overview")}
+    return `${pageLead("一、PRD及说明", "PRD及说明", "返现的业务规则、三端流程与设计原图，按 V1.2 产品评审稿整理。")}${docsTabs("overview")}
       <section class="card overview-hero">
         <p class="eyebrow">DAIMENGJIA CASHBACK · 2026.10.10</p>
         <h2>呆萌价返现功能产品需求说明</h2>
@@ -81,8 +81,9 @@
           <tr><td>审核中</td><td>已生效且为代理管，等待代理确认。与系统申请资格审核中分别展示。</td></tr>
           <tr><td>打款中</td><td>全托管自动确认或代理同意，进入平台代打款，等待支付宝结果。</td></tr>
           <tr><td>已打款</td><td>支付宝确认打款成功，记入已返现金额并关联账单；后续维权保留真实到账事实。</td></tr>
-          <tr><td>打款失败</td><td>支付宝明确返回失败，展示原因；修正后由运营重试。</td></tr>
+          <tr><td>打款失败</td><td>少数情况下支付宝明确返回失败：保留历史与原因，不计为有效申请，用户可重新填写订单号申请。</td></tr>
         </tbody></table></div>
+        <div class="callout"><strong>打款失败后：</strong>旧申请不计有效 → 用户回首页重新填写订单号 → 生成新申请并重新校验资格、生效与确认条件。打款中、结果未明或已打款的订单仍拦截重复申请。<a href="#user-flow/order">查看申请入口 →</a></div>
       </section>
       <section class="card"><div class="card-title"><span class="card-number">04</span><h2>金额与风险规则</h2></div>
         <ul class="rule-list">
@@ -99,19 +100,19 @@
           <tr><td>团队与设置</td><td>托管状态、申请数、异常数；跟随官方／单独设置；去掉账户余额。</td><td><a href="#admin-teams/list">原图 →</a></td></tr>
           <tr><td>活动与区间</td><td>官方活动、商品、区间、时间和上架／显示。未提供独立后台设计图。</td><td><a href="#docs/prd/10">PRD →</a></td></tr>
           <tr><td>返现审核</td><td>资格分类与五种返现进度分开；拒绝需原因；修改重匹配并留日志。</td><td><a href="#admin-review/list">原图 →</a></td></tr>
-          <tr><td>提现审核</td><td>管理类型、收款快照与打款结果；失败可重试，在途不重复打款。</td><td><a href="#admin-payouts/list">原图 →</a></td></tr>
+          <tr><td>提现审核</td><td>管理类型、收款快照与打款结果；明确失败不计有效，用户重新填写订单号申请；在途不重复打款。</td><td><a href="#admin-payouts/list">原图 →</a></td></tr>
           <tr><td>风险预警</td><td>四条规则独立启用；用户预警表与团队／用户每日明细。</td><td><a href="#admin-risk/rules">原图 →</a></td></tr>
         </tbody></table></div>
       </section>
       <section class="card"><div class="card-title"><span class="card-number">06</span><h2>评审范围与待确认</h2></div>
-        <p class="quiet-note">页面使用“返现设计”文件夹中的原图，规则与说明以《呆萌价返现功能 PRD V1.1》为准。图中的旧字段、旧提示不作为已确认规则；各页旁边已标注差异。本页用于设计与需求评审，不连接真实订单、审核或资金接口。</p>
-        <ul class="rule-list"><li>用户详情／黑名单、团队返现设置弹窗、后台活动列表、后台活动区间设置尚无独立设计图；完整要求已保留在 PRD。</li><li>活动冲突优先级、0 元申请归档、佣金覆盖阻断、3 个工作日起算点、拒绝／失败归类、账号更新、黑名单范围与风险统计边界需定稿。</li><li>验收清单 AC01—AC28 与全部待确认项可在完整 PRD 中查看。</li></ul>
+        <p class="quiet-note">页面使用“返现设计”文件夹中的原图，规则与说明以《呆萌价返现功能 PRD V1.2》为准。图中的旧字段、旧提示不作为已确认规则；各页旁边已标注差异。本页用于设计与需求评审，不连接真实订单、审核或资金接口。</p>
+        <ul class="rule-list"><li>用户详情／黑名单、团队返现设置弹窗、后台活动列表、后台活动区间设置尚无独立设计图；完整要求已保留在 PRD。</li><li>活动冲突优先级、0 元申请归档、佣金覆盖阻断、3 个工作日起算点、拒绝状态与失败历史的筛选归类、未提交支付任务的账号更新时点、黑名单范围与风险统计边界需定稿。</li><li>验收清单 AC01—AC28 与全部待确认项可在完整 PRD 中查看。</li></ul>
         <a class="prd-link" href="#docs/prd/17"><span>查看第 17 章 · 评审待确认与需求覆盖</span><span>→</span></a>
       </section>${footer()}`;
   }
 
   function prdView() {
-    return `${pageLead("一、PRD及说明", "完整 PRD", "来自《呆萌价返现功能 PRD V1.1》，保留全部 17 章、业务规则和验收清单。")}${docsTabs("prd")}
+    return `${pageLead("一、PRD及说明", "完整 PRD", "来自《呆萌价返现功能 PRD V1.2》，保留全部 17 章、业务规则和验收清单。")}${docsTabs("prd")}
       <div class="prd-top"><label>章节定位 <select id="chapter-select" aria-label="选择PRD章节"><option value="">请选择章节</option>${data.sections.map((section) => `<option value="${section.number}">${section.number}　${escape(section.title)}</option>`).join("")}</select></label><a href="#docs/overview" class="prd-back">返回说明 ↑</a></div>
       <article class="card prd-document">${data.prd}</article>${footer()}`;
   }
@@ -137,9 +138,9 @@
             <div class="prev-next"><button data-direction="prev" ${index === 0 ? "disabled" : ""}>← 上一步</button><button data-direction="next" ${index === group.pages.length - 1 ? "disabled" : ""}>下一步 →</button></div>
             <a class="prd-link" href="#docs/prd/${item.chapter}"><span>关联 PRD · 第 ${item.chapter} 章</span><span>↗</span></a>
           </section>
-          ${notesList("V1.1 规则说明", item.updates, "rule-notes")}
+          ${notesList("V1.2 规则说明", item.updates, "rule-notes")}
           ${notesList("待确认／设计待补", item.pending, "pending-notes")}
-          <div class="notes-source">画面依据：${escape(item.source)}<br>规则依据：PRD V1.1 ／ 阅读跳转仅用于评审。</div>
+          <div class="notes-source">画面依据：${escape(item.source)}<br>规则依据：PRD V1.2 ／ 阅读跳转仅用于评审。</div>
         </aside>
       </div>${footer()}`;
   }
