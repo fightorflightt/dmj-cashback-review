@@ -62,7 +62,7 @@
         <div class="card-grid">
           <a class="entry-card" href="#user-flow/initial"><div class="entry-top"><strong>用户端小程序</strong><span>09 张</span></div><p>设置个人支付宝、提交订单号，查看申请记录、生效说明和打款进度。</p><small>首页 → 收款设置 → 申请 → 记录</small><span class="entry-cta">查看用户端原图 →</span></a>
           <a class="entry-card" href="#agent-review/managed"><div class="entry-top"><strong>代理端小程序</strong><span>10 张</span></div><p>切换托管模式，确认返现；管理申请用户、黑名单和自建活动。</p><small>返现管理 → 审核确认 → 活动管理</small><span class="entry-cta">查看代理端原图 →</span></a>
-          <a class="entry-card" href="#admin-teams/list"><div class="entry-top"><strong>运营后台</strong><span>06 张</span></div><p>设置团队、核对返现与代打款，查看用户及团队风险预警。</p><small>团队配置 → 返现审核 → 打款与预警</small><span class="entry-cta">查看运营后台原图 →</span></a>
+          <a class="entry-card" href="#admin-teams/list"><div class="entry-top"><strong>运营后台</strong><span>06 张原图＋审核弹窗</span></div><p>设置团队、核对返现与代打款，查看用户及团队风险预警。</p><small>团队配置 → 返现审核 → 打款与预警</small><span class="entry-cta">查看运营后台原图 →</span></a>
         </div>
       </section>
       <section class="card"><div class="card-title"><span class="card-number">02</span><h2>两种管理模式</h2></div>
@@ -100,13 +100,13 @@
           <tr><td>团队与设置</td><td>托管状态、申请数、异常数；跟随官方／单独设置；去掉账户余额。</td><td><a href="#admin-teams/list">原图 →</a></td></tr>
           <tr><td>活动与区间</td><td>官方活动、商品、区间、时间和上架／显示。未提供独立后台设计图。</td><td><a href="#docs/prd/10">PRD →</a></td></tr>
           <tr><td>返现审核</td><td>资格分类与五种返现进度分开；拒绝需原因；修改重匹配并留日志。</td><td><a href="#admin-review/list">原图 →</a></td></tr>
-          <tr><td>提现审核</td><td>管理类型、收款快照与打款结果；明确失败不计有效，用户重新填写订单号申请；在途不重复打款。</td><td><a href="#admin-payouts/list">原图 →</a></td></tr>
+          <tr><td>打款审核</td><td>管理类型、风险等级与审核弹窗；移除收款记录入口。明确失败不计有效，用户重新填写订单号申请；在途不重复打款。</td><td><a href="#admin-payouts/list">原图 →</a></td></tr>
           <tr><td>风险预警</td><td>四条规则独立启用；用户预警表与团队／用户每日明细。</td><td><a href="#admin-risk/rules">原图 →</a></td></tr>
         </tbody></table></div>
       </section>
       <section class="card"><div class="card-title"><span class="card-number">06</span><h2>评审范围与待确认</h2></div>
-        <p class="quiet-note">页面使用“返现设计”文件夹中的原图，规则与说明以《呆萌价返现功能 PRD V1.2》为准。图中的旧字段、旧提示不作为已确认规则；各页旁边已标注差异。本页用于设计与需求评审，不连接真实订单、审核或资金接口。</p>
-        <ul class="rule-list"><li>用户详情／黑名单、团队返现设置弹窗、后台活动列表、后台活动区间设置尚无独立设计图；完整要求已保留在 PRD。</li><li>活动冲突优先级、0 元申请归档、佣金覆盖阻断、3 个工作日起算点、拒绝状态与失败历史的筛选归类、未提交支付任务的账号更新时点、黑名单范围与风险统计边界需定稿。</li><li>验收清单 AC01—AC28 与全部待确认项可在完整 PRD 中查看。</li></ul>
+        <p class="quiet-note">页面使用“返现设计”文件夹中的原图，规则与说明以《呆萌价返现功能 PRD V1.2》为准。运营打款列表与弹窗已按本次截图更新，后台名称统一为“打款审核”。图中的其他旧字段、旧提示不作为已确认规则；各页旁边已标注差异。本页用于设计与需求评审，不连接真实订单、审核或资金接口。</p>
+        <ul class="rule-list"><li>用户详情／黑名单、团队返现设置弹窗、后台活动列表、后台活动区间设置尚无独立设计图；完整要求已保留在 PRD。</li><li>活动冲突优先级、0 元申请归档、佣金覆盖阻断、3 个工作日起算点、拒绝状态与失败历史的筛选归类、未提交支付任务的账号更新时点、黑名单范围与风险统计边界需定稿。</li><li>风险等级判定规则待确认。验收清单 AC01—AC28 与全部待确认项可在完整 PRD 中查看。</li></ul>
         <a class="prd-link" href="#docs/prd/17"><span>查看第 17 章 · 评审待确认与需求覆盖</span><span>→</span></a>
       </section>${footer()}`;
   }
@@ -122,25 +122,30 @@
     return `<section class="card ${className}"><h3>${title}</h3><ul>${items.map((item) => `<li>${escape(item)}</li>`).join("")}</ul></section>`;
   }
 
+  function adminImage(group, item, zoomed = false) {
+    const type = group.id === "admin-teams" ? "teams" : group.id === "admin-review" ? "review" : "risk";
+    return `<div class="admin-source-frame ${zoomed ? "zoomed" : ""}"><img ${zoomed ? 'id="modal-image"' : ''} src="${item.image}" alt="${escape(item.title)} · 后台名称更新稿"><span class="admin-label ${type}">打款审核</span>${type === "review" ? '<span class="admin-label review-tab">打款审核</span>' : ''}</div>`;
+  }
+
   function designView(group, index) {
     const item = group.pages[index];
     return `${pageLead(group.section, group.name, group.description)}
       <div class="stepper" role="tablist" aria-label="设计页面切换">${group.pages.map((p, i) => `<button class="step-button ${i === index ? "active" : ""}" role="tab" aria-selected="${i === index}" aria-controls="design-panel" data-step="${i}"><span>${String(i + 1).padStart(2, "0")}</span>${escape(p.title)}</button>`).join("")}</div>
       <div class="preview-layout ${group.mobile ? "" : "desktop-layout"}" id="design-panel" role="tabpanel" aria-label="${escape(item.title)}">
         <section class="design-stage ${group.mobile ? "" : "desktop-stage"}" aria-label="设计原图预览">
-          <div class="stage-bar"><span>${group.mobile ? "小程序" : "运营后台"}设计原图 <span>／ ${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></span><button data-action="zoom">⤢ 放大查看</button></div>
-          <div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}原图，可滚动查看"><img src="${item.image}" alt="${escape(item.title)} · 返现设计原图" fetchpriority="high" draggable="false"></div>
-          <div class="screen-caption">${group.mobile ? "长图可在画面内滚动" : "窄屏可横向滚动查看表格"}<span>·</span>放大查看完整原图</div>
+          <div class="stage-bar"><span>${group.mobile ? "小程序设计原图" : "运营后台更新稿"} <span>／ ${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></span>${item.interactive ? '' : '<button data-action="zoom">⤢ 放大查看</button>'}</div>
+          <div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}，可滚动查看">${item.interactive ? window.CashbackAdmin.render(item.id === "audit") : group.mobile ? `<img src="${item.image}" alt="${escape(item.title)} · 返现设计原图" fetchpriority="high" draggable="false">` : adminImage(group, item)}</div>
+          <div class="screen-caption">${item.interactive ? "点击每行“审核”打开弹窗 · 可切换同意／拒绝并查看演示反馈" : group.mobile ? "长图可在画面内滚动 · 放大查看完整原图" : "后台名称已更新 · 放大查看完整画面"}</div>
         </section>
         <aside class="notes" aria-label="功能和交互说明">
-          <section class="card"><div class="note-eyebrow"><span>设计原图</span><span>${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></div><h2>${escape(item.title)}</h2><p class="purpose">${escape(item.purpose)}</p><div class="note-label">主要功能与操作</div>
+          <section class="card"><div class="note-eyebrow"><span>${group.mobile ? "设计原图" : "运营更新稿"}</span><span>${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></div><h2>${escape(item.title)}</h2><p class="purpose">${escape(item.purpose)}</p><div class="note-label">主要功能与操作</div>
             <ol class="annotation-list">${item.points.map((p, i) => `<li><span class="annotation-number">${i + 1}</span><div class="annotation-content"><strong>${escape(p.label)}</strong><p>${escape(p.text)}</p>${p.target ? `<a href="${href(p.target)}">查看关联页面 →</a>` : ""}</div></li>`).join("")}</ol>
             <div class="prev-next"><button data-direction="prev" ${index === 0 ? "disabled" : ""}>← 上一步</button><button data-direction="next" ${index === group.pages.length - 1 ? "disabled" : ""}>下一步 →</button></div>
             <a class="prd-link" href="#docs/prd/${item.chapter}"><span>关联 PRD · 第 ${item.chapter} 章</span><span>↗</span></a>
           </section>
           ${notesList("V1.2 规则说明", item.updates, "rule-notes")}
           ${notesList("待确认／设计待补", item.pending, "pending-notes")}
-          <div class="notes-source">画面依据：${escape(item.source)}<br>规则依据：PRD V1.2 ／ 阅读跳转仅用于评审。</div>
+          <div class="notes-source">画面依据：${item.interactive ? "2026年10月10日提供的打款审核列表及弹窗截图" : escape(item.source)}<br>规则依据：PRD V1.2${group.mobile ? "" : "＋本次运营端补充需求"} ／ 仅用于评审。</div>
         </aside>
       </div>${footer()}`;
   }
@@ -177,7 +182,8 @@
         title = `${currentGroup.name} ／ ${currentGroup.pages[currentIndex].title}`;
         main.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => goToStep(Number(button.dataset.step))));
         main.querySelectorAll("[data-direction]").forEach((button) => button.addEventListener("click", () => goToStep(currentIndex + (button.dataset.direction === "prev" ? -1 : 1))));
-        main.querySelector('[data-action="zoom"]').addEventListener("click", openModal);
+        main.querySelector('[data-action="zoom"]')?.addEventListener("click", openModal);
+        if (currentGroup.pages[currentIndex].interactive) window.CashbackAdmin.bind(main);
         const activeStep = main.querySelector(".step-button.active");
         const stepper = main.querySelector(".stepper");
         stepper.scrollLeft = Math.max(0, activeStep.offsetLeft - stepper.offsetLeft - 15);
@@ -203,6 +209,7 @@
     const img = document.getElementById("modal-image");
     const base = currentGroup.mobile ? 375 : 1300;
     img.style.width = `${base * modalScale / 100}px`;
+    img.closest(".admin-source-frame")?.style.setProperty("--image-width", `${base * modalScale / 100}px`);
     document.getElementById("zoom-value").textContent = `${modalScale}%`;
     document.getElementById("zoom-out").disabled = modalScale <= 50;
     document.getElementById("zoom-in").disabled = modalScale >= 200;
@@ -211,9 +218,7 @@
   function openModal() {
     const item = currentGroup.pages[currentIndex];
     restoreFocus = document.activeElement;
-    const img = document.getElementById("modal-image");
-    img.src = item.image;
-    img.alt = `${item.title}完整设计原图`;
+    document.getElementById("modal-scroll").innerHTML = currentGroup.mobile ? `<img id="modal-image" src="${item.image}" alt="${escape(item.title)}完整设计原图">` : adminImage(currentGroup, item, true);
     document.getElementById("modal-title").textContent = item.title;
     modalScale = currentGroup.mobile ? 100 : (window.innerWidth < 700 ? 75 : 100);
     updateZoom();
