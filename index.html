@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="呆萌价返现功能 V1.1 评审 H5：完整 PRD、用户端、代理端与运营后台设计原图。">
+  <title>PRD及说明 · 呆萌价返现功能</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23fa5357'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='38' fill='white'%3E返%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="content.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">跳转到正文</a>
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="sidebar" id="sidebar" aria-label="返现功能目录">
+    <div class="brand"><span class="brand-icon">返</span><div><strong>呆萌价返现</strong><span>产品需求与设计评审</span></div><button class="icon-button close-nav" id="close-nav" aria-label="关闭目录">×</button></div>
+    <nav id="navigation"></nav>
+    <div class="sidebar-foot"><span class="version-dot"></span> V1.1 · 产品评审稿<br><span>25 张设计原图 · 三端需求</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div class="breadcrumb"><button class="icon-button menu-button" id="open-nav" aria-label="打开目录" aria-controls="sidebar" aria-expanded="false">☰</button><span>返现功能</span><span class="slash">／</span><strong id="breadcrumb-title">PRD及说明</strong></div><div class="top-actions"><span class="version-pill">V1.1 评审稿</span><button class="share-button" id="share-link" title="复制当前页面链接">↗ <span>复制页面链接</span></button></div></header>
+    <main id="main" tabindex="-1"></main>
+  </div>
+  <div class="image-modal" id="image-modal" hidden role="dialog" aria-modal="true" aria-label="设计原图放大查看">
+    <header><div><strong id="modal-title"></strong><span>可滚动查看完整原图</span></div><div class="modal-actions"><button id="zoom-out" aria-label="缩小原图">−</button><span id="zoom-value">100%</span><button id="zoom-in" aria-label="放大原图">＋</button><button id="close-modal" aria-label="关闭大图">×</button></div></header>
+    <div class="modal-scroll" id="modal-scroll"><img id="modal-image" alt=""></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="noscript">请启用浏览器 JavaScript 后查看完整 PRD 与设计原图。</p></noscript>
+</body>
+</html>
