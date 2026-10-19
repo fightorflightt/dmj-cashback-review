@@ -42,7 +42,7 @@
   }
 
   function footer() {
-    return '<footer class="page-footer"><span>呆萌价返现功能 · V1.2 · 2026.10.10</span><span>PRD 及设计评审 · 原图与规则说明</span></footer>';
+    return '<footer class="page-footer"><span>呆萌价返现功能 · V1.3 · 2026.10.19</span><span>PRD 及设计评审 · 原图与规则说明</span></footer>';
   }
 
   function docsTabs(selected) {
@@ -50,14 +50,9 @@
   }
 
   function overview() {
-    return `${pageLead("一、PRD及说明", "PRD及说明", "返现的业务规则、三端流程与设计原图，按 V1.2 产品评审稿整理。")}${docsTabs("overview")}
-      <section class="card overview-hero">
-        <p class="eyebrow">DAIMENGJIA CASHBACK · 2026.10.10</p>
-        <h2>呆萌价返现功能产品需求说明</h2>
-        <p>用户提交订单号后，系统审核活动资格；确认收货满 7 天且无售后，返现生效。全托管自动确认，代理管由代理确认，平台运营通过支付宝打款。芝麻先垫付返现，再在平台结算后扣除垫付款，向代理结算剩余佣金。</p>
-        <div class="overview-meta"><span>用户端小程序</span><span>代理端小程序</span><span>运营后台</span><span>25 张设计原图</span><span>17 章完整 PRD</span></div>
-        <div class="journey" aria-label="返现流程">${[["01", "下单付款", "按活动与实付款匹配"], ["02", "申请返现", "设置支付宝，提交订单"], ["03", "收货生效", "收货满 7 天且无售后"], ["04", "确认返现", "全托管自动／代理确认"], ["05", "打款到账", "平台代打款，核对结果"]].map(([n, title, sub]) => `<div class="journey-step"><b>${n}</b><strong>${title}</strong><span>${sub}</span></div>`).join("")}</div>
-      </section>
+    const introduction = data.prd.slice(data.prd.indexOf('<h2 id="prd-section-1">'), data.prd.indexOf('<h2 id="prd-section-3">'));
+    return `${pageLead("一、PRD及说明", "PRD及说明", "按具体页面整理的简版 PRD，已合并全托管、发单识别和结算扣款规则。")}${docsTabs("overview")}
+      <section class="card prd-document">${introduction}</section>
       <section class="card"><div class="card-title"><span class="card-number">01</span><h2>三端设计与操作路径</h2></div>
         <div class="card-grid">
           <a class="entry-card" href="#user-flow/initial"><div class="entry-top"><strong>用户端小程序</strong><span>09 张</span></div><p>设置个人支付宝、提交订单号，查看申请记录、生效说明和打款进度。</p><small>首页 → 收款设置 → 申请 → 记录</small><span class="entry-cta">查看用户端原图 →</span></a>
@@ -65,54 +60,26 @@
           <a class="entry-card" href="#admin-teams/list"><div class="entry-top"><strong>运营后台</strong><span>06 张原图＋审核弹窗</span></div><p>设置团队、核对返现与代打款，查看用户及团队风险预警。</p><small>团队配置 → 返现审核 → 打款与预警</small><span class="entry-cta">查看运营后台原图 →</span></a>
         </div>
       </section>
-      <section class="card"><div class="card-title"><span class="card-number">02</span><h2>两种管理模式</h2></div>
-        <div class="table-scroll"><table><thead><tr><th>处理环节</th><th>全托管</th><th>代理管（自己管）</th></tr></thead><tbody>
-          <tr><td>活动创建</td><td>官方统一创建，代理也可自建。</td><td>代理自行创建，按渠道及配置匹配。</td></tr>
-          <tr><td>订单资格</td><td>系统自动审核。</td><td>仍由系统自动审核。</td></tr>
-          <tr><td>生效后确认</td><td>自动确认，进入平台代打款。</td><td>等待代理同意或拒绝。</td></tr>
-          <tr><td>实际打款</td><td>平台运营完成支付宝打款。</td><td>平台运营完成支付宝打款。</td></tr>
-          <tr><td>垫付与结算</td><td colspan="2">芝麻垫付；平台结算后扣除垫付款，结算代理剩余佣金。</td></tr>
+      <section class="card"><div class="card-title"><h2>支付宝打款与结算扣款</h2></div>
+        <p>芝麻先通过支付宝垫付返现，订单佣金结算后扣除垫付款，再向代理结算剩余佣金。佣金不足时，未扣清部分继续从代理后续佣金中抵扣。</p>
+        <div class="table-scroll"><table><thead><tr><th>App“我的订单”情况</th><th>订单标签</th></tr></thead><tbody>
+          <tr><td>已打款给用户，尚未向代理扣清垫付款</td><td>返现-未扣款</td></tr>
+          <tr><td>已打款给用户，已向代理扣清垫付款</td><td>返现-已扣款</td></tr>
         </tbody></table></div>
-        <div class="callout">管理模式与配置来源分别记录。“全托管／代理管”决定是否等待代理确认；“跟随官方／单独设置”决定采用哪套返现配置。</div>
+        <p>后端根据返现打款表及时更新相关订单，扣清后更换标签，并同步账单；同一笔返现不重复打款或扣款。</p>
+        <a class="prd-link" href="#docs/prd/5"><span>查看打款、订单标签与结算扣款规则</span><span>→</span></a>
       </section>
-      <section class="card"><div class="card-title"><span class="card-number">03</span><h2>生效与打款状态</h2></div>
-        <div class="table-scroll"><table><thead><tr><th>返现进度</th><th>进入条件与下一步</th></tr></thead><tbody>
-          <tr><td>未生效</td><td>资格审核未完成、未通过，或尚未满足收货观察条件。合格且收货满 7 天无售后才生效。</td></tr>
-          <tr><td>审核中</td><td>已生效且为代理管，等待代理确认。与系统申请资格审核中分别展示。</td></tr>
-          <tr><td>打款中</td><td>全托管自动确认或代理同意，进入平台代打款，等待支付宝结果。</td></tr>
-          <tr><td>已打款</td><td>支付宝确认打款成功，记入已返现金额并关联账单；后续维权保留真实到账事实。</td></tr>
-          <tr><td>打款失败</td><td>少数情况下支付宝明确返回失败：保留历史与原因，不计为有效申请，用户可重新填写订单号申请。</td></tr>
-        </tbody></table></div>
-        <div class="callout"><strong>打款失败后：</strong>旧申请不计有效 → 用户回首页重新填写订单号 → 生成新申请并重新校验资格、生效与确认条件。打款中、结果未明或已打款的订单仍拦截重复申请。<a href="#user-flow/order">查看申请入口 →</a></div>
+      <section class="card"><div class="card-title"><h2>风险预警与黑名单</h2></div>
+        <p>收货满7天且无售后才生效。到账后维权由系统自动拉黑，代理也可手动拉黑。团队和个人打款预警在审核时展示，仅作提醒，不自动阻止打款。</p>
+        <a class="prd-link" href="#docs/prd/6"><span>查看风险预警与黑名单规则</span><span>→</span></a>
       </section>
-      <section class="card"><div class="card-title"><span class="card-number">04</span><h2>金额与风险规则</h2></div>
-        <ul class="rule-list">
-          <li>区间下限 ≤ 订单实付款 ＜ 区间上限；未覆盖区间默认返现 0 元，显示返现金额只用于展示。</li>
-          <li>例如 29 ≤ 实付款 ＜ 29.90，返现 10 元：29.00 元命中，29.90 元不命中这一段。</li>
-          <li>预估利润＝佣金＋代理补贴－用户返现金额；不是实际结算净佣金。</li>
-          <li>风险预警共四条：团队／用户单日金额＞限额，团队／用户连续 X 个自然日每日金额≥阈值。</li>
-          <li>预警只统计北京时间自然日的实际成功金额，仅提示风险，允许继续打款。</li>
-          <li>到账后维权达到 1 次及以上触发系统拉黑；黑名单与金额预警分别执行。</li>
-        </ul>
-      </section>
-      <section class="card"><div class="card-title"><span class="card-number">05</span><h2>运营后台范围</h2></div>
-        <div class="table-scroll"><table><thead><tr><th>页面</th><th>职责与要求</th><th>查看</th></tr></thead><tbody>
-          <tr><td>团队与设置</td><td>托管状态、申请数、异常数；跟随官方／单独设置；去掉账户余额。</td><td><a href="#admin-teams/list">原图 →</a></td></tr>
-          <tr><td>活动与区间</td><td>官方活动、商品、区间、时间和上架／显示。未提供独立后台设计图。</td><td><a href="#docs/prd/10">PRD →</a></td></tr>
-          <tr><td>返现审核</td><td>资格分类与五种返现进度分开；拒绝需原因；修改重匹配并留日志。</td><td><a href="#admin-review/list">原图 →</a></td></tr>
-          <tr><td>打款审核</td><td>管理类型、风险等级与审核弹窗；移除收款记录入口。明确失败不计有效，用户重新填写订单号申请；在途不重复打款。</td><td><a href="#admin-payouts/list">原图 →</a></td></tr>
-          <tr><td>风险预警</td><td>四条规则独立启用；用户预警表与团队／用户每日明细。</td><td><a href="#admin-risk/rules">原图 →</a></td></tr>
-        </tbody></table></div>
-      </section>
-      <section class="card"><div class="card-title"><span class="card-number">06</span><h2>评审范围与待确认</h2></div>
-        <p class="quiet-note">页面使用“返现设计”文件夹中的原图，规则与说明以《呆萌价返现功能 PRD V1.2》为准。运营打款列表与弹窗已按本次截图更新，后台名称统一为“打款审核”。图中的其他旧字段、旧提示不作为已确认规则；各页旁边已标注差异。本页用于设计与需求评审，不连接真实订单、审核或资金接口。</p>
-        <ul class="rule-list"><li>用户详情／黑名单、团队返现设置弹窗、后台活动列表、后台活动区间设置尚无独立设计图；完整要求已保留在 PRD。</li><li>活动冲突优先级、0 元申请归档、佣金覆盖阻断、3 个工作日起算点、拒绝状态与失败历史的筛选归类、未提交支付任务的账号更新时点、黑名单范围与风险统计边界需定稿。</li><li>风险等级判定规则待确认。验收清单 AC01—AC28 与全部待确认项可在完整 PRD 中查看。</li></ul>
-        <a class="prd-link" href="#docs/prd/17"><span>查看第 17 章 · 评审待确认与需求覆盖</span><span>→</span></a>
+      <section class="card"><h2>评审范围</h2><p class="quiet-note">设计画面保留原图，业务规则以已确认的简版 PRD V1.3 为准。新增H5代理管理页面和App“我的订单”标签尚无独立设计图，要求已写入PRD。本网站用于评审，不连接真实订单、审核、发单或支付接口。</p>
+        <a class="prd-link" href="#docs/prd/7"><span>查看验收重点</span><span>→</span></a>
       </section>${footer()}`;
   }
 
   function prdView() {
-    return `${pageLead("一、PRD及说明", "完整 PRD", "来自《呆萌价返现功能 PRD V1.2》，保留全部 17 章、业务规则和验收清单。")}${docsTabs("prd")}
+    return `${pageLead("一、PRD及说明", "完整 PRD", "按已确认内容整理为7章，包含具体页面、发单识别、订单标签、扣款与验收重点。")}${docsTabs("prd")}
       <div class="prd-top"><label>章节定位 <select id="chapter-select" aria-label="选择PRD章节"><option value="">请选择章节</option>${data.sections.map((section) => `<option value="${section.number}">${section.number}　${escape(section.title)}</option>`).join("")}</select></label><a href="#docs/overview" class="prd-back">返回说明 ↑</a></div>
       <article class="card prd-document">${data.prd}</article>${footer()}`;
   }
@@ -146,9 +113,9 @@
             <ol class="annotation-list">${item.points.map((p, i) => `<li><span class="annotation-number">${i + 1}</span><div class="annotation-content"><strong>${escape(p.label)}</strong><p>${escape(p.text)}</p>${p.target ? `<a href="${href(p.target)}">查看关联页面 →</a>` : ""}</div></li>`).join("")}</ol>
             <a class="prd-link" href="#docs/prd/${item.chapter}"><span>关联 PRD · 第 ${item.chapter} 章</span><span>↗</span></a>
           </section>
-          ${notesList("V1.2 规则说明", item.updates, "rule-notes")}
+          ${notesList("V1.3 规则说明", item.updates, "rule-notes")}
           ${notesList("待确认／设计待补", item.pending, "pending-notes")}
-          <div class="notes-source">画面依据：${item.interactive ? "2026年10月10日提供的打款审核列表及弹窗截图" : escape(item.source)}<br>规则依据：PRD V1.2${group.mobile ? "" : "＋本次运营端补充需求"} ／ 仅用于评审。</div>
+          <div class="notes-source">画面依据：${item.interactive ? "2026年10月10日提供的打款审核列表及弹窗截图" : escape(item.source)}<br>规则依据：PRD V1.3${group.mobile ? "" : "＋本次运营端补充需求"} ／ 仅用于评审。</div>
         </aside>
       </article>`;
   }
