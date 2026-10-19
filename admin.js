@@ -9,9 +9,18 @@
   function bind(root) {
     const layer = root.querySelector('.ops-dialog-layer');
     if (!layer) return;
+    const inline = root.classList.contains('audit-card');
+    if (inline) {
+      layer.querySelector('.ops-dialog').removeAttribute('aria-modal');
+      layer.querySelector('.ops-dialog').setAttribute('role','group');
+    }
     let opener;
-    const close = () => { layer.hidden=true; document.body.classList.remove('body-locked'); opener?.focus(); };
-    if (!layer.hidden) { document.body.classList.add('body-locked'); layer.querySelector('input').focus({preventScroll:true}); }
+    const close = () => {
+      if (inline) {
+        root.querySelector('.ops-audit-form').reset();
+        layer.querySelector('.ops-feedback').hidden=true;
+      } else { layer.hidden=true; document.body.classList.remove('body-locked'); opener?.focus(); }
+    };
     root.querySelectorAll('[data-ops-audit]').forEach(button=>button.addEventListener('click',()=>{
       opener=button; const row=rows[Number(button.dataset.opsAudit)];
       layer.querySelector('[data-ops-person]').textContent=row[0];
@@ -27,7 +36,7 @@
     root.querySelectorAll('[data-ops-close]').forEach(button=>button.addEventListener('click',close));
     layer.addEventListener('keydown',event=>{
       if(event.key==='Escape'){event.stopPropagation();close();}
-      if(event.key==='Tab'){
+      if(event.key==='Tab'&&!inline){
         const controls=[...layer.querySelectorAll('button,input')];
         const first=controls[0],last=controls.at(-1);
         if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}

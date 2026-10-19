@@ -127,27 +127,30 @@
     return `<div class="admin-source-frame ${zoomed ? "zoomed" : ""}"><img ${zoomed ? 'id="modal-image"' : ''} src="${item.image}" alt="${escape(item.title)} · 后台名称更新稿"><span class="admin-label ${type}">打款审核</span>${type === "review" ? '<span class="admin-label review-tab">打款审核</span>' : ''}</div>`;
   }
 
-  function designView(group, index) {
-    const item = group.pages[index];
+  function designView(group) {
     return `${pageLead(group.section, group.name, group.description)}
-      <div class="stepper" role="tablist" aria-label="设计页面切换">${group.pages.map((p, i) => `<button class="step-button ${i === index ? "active" : ""}" role="tab" aria-selected="${i === index}" aria-controls="design-panel" data-step="${i}"><span>${String(i + 1).padStart(2, "0")}</span>${escape(p.title)}</button>`).join("")}</div>
-      <div class="preview-layout ${group.mobile ? "" : "desktop-layout"}" id="design-panel" role="tabpanel" aria-label="${escape(item.title)}">
+      <div class="gallery-summary"><span>共 ${group.pages.length} 个画面，已全部展开</span><span>按编号从左到右、从上到下阅读</span></div>
+      <div class="design-gallery ${group.mobile ? "" : "desktop-gallery"}">${group.pages.map((item, index) => designCard(group, item, index)).join("")}</div>${footer()}`;
+  }
+
+  function designCard(group, item, index) {
+    return `<article class="design-card ${group.mobile ? "" : "desktop-card"} ${item.id === "audit" ? "audit-card" : ""}" id="screen-${item.id}" aria-labelledby="title-${item.id}" tabindex="-1">
+        <header class="design-card-heading"><span>${String(index + 1).padStart(2, "0")}</span><h2 id="title-${item.id}">${escape(item.title)}</h2></header>
         <section class="design-stage ${group.mobile ? "" : "desktop-stage"}" aria-label="设计原图预览">
-          <div class="stage-bar"><span>${group.mobile ? "小程序设计原图" : "运营后台更新稿"} <span>／ ${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></span>${item.interactive ? '' : '<button data-action="zoom">⤢ 放大查看</button>'}</div>
+          <div class="stage-bar"><span>${group.mobile ? "小程序设计原图" : "运营后台更新稿"}</span>${item.interactive ? '' : `<button data-zoom="${index}" aria-label="放大查看${escape(item.title)}">⤢ 放大查看</button>`}</div>
           <div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}，可滚动查看">${item.interactive ? window.CashbackAdmin.render(item.id === "audit") : group.mobile ? `<img src="${item.image}" alt="${escape(item.title)} · 返现设计原图" fetchpriority="high" draggable="false">` : adminImage(group, item)}</div>
           <div class="screen-caption">${item.interactive ? "点击每行“审核”打开弹窗 · 可切换同意／拒绝并查看演示反馈" : group.mobile ? "长图可在画面内滚动 · 放大查看完整原图" : "后台名称已更新 · 放大查看完整画面"}</div>
         </section>
         <aside class="notes" aria-label="功能和交互说明">
           <section class="card"><div class="note-eyebrow"><span>${group.mobile ? "设计原图" : "运营更新稿"}</span><span>${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></div><h2>${escape(item.title)}</h2><p class="purpose">${escape(item.purpose)}</p><div class="note-label">主要功能与操作</div>
             <ol class="annotation-list">${item.points.map((p, i) => `<li><span class="annotation-number">${i + 1}</span><div class="annotation-content"><strong>${escape(p.label)}</strong><p>${escape(p.text)}</p>${p.target ? `<a href="${href(p.target)}">查看关联页面 →</a>` : ""}</div></li>`).join("")}</ol>
-            <div class="prev-next"><button data-direction="prev" ${index === 0 ? "disabled" : ""}>← 上一步</button><button data-direction="next" ${index === group.pages.length - 1 ? "disabled" : ""}>下一步 →</button></div>
             <a class="prd-link" href="#docs/prd/${item.chapter}"><span>关联 PRD · 第 ${item.chapter} 章</span><span>↗</span></a>
           </section>
           ${notesList("V1.2 规则说明", item.updates, "rule-notes")}
           ${notesList("待确认／设计待补", item.pending, "pending-notes")}
           <div class="notes-source">画面依据：${item.interactive ? "2026年10月10日提供的打款审核列表及弹窗截图" : escape(item.source)}<br>规则依据：PRD V1.2${group.mobile ? "" : "＋本次运营端补充需求"} ／ 仅用于评审。</div>
         </aside>
-      </div>${footer()}`;
+      </article>`;
   }
 
   function render() {
@@ -156,6 +159,7 @@
     const parts = location.hash.slice(1).split("/");
     const section = parts[0] || "docs";
     let title;
+    const previousGroup = currentGroup;
     currentGroup = null;
     if (section === "docs") {
       const isPrd = parts[1] === "prd";
@@ -178,16 +182,21 @@
         title = "页面未找到";
       } else {
         currentIndex = Math.max(0, currentGroup.pages.findIndex((item) => item.id === parts[1]));
-        main.innerHTML = designView(currentGroup, currentIndex);
+        if (previousGroup !== currentGroup) {
+          main.innerHTML = designView(currentGroup);
+          main.querySelectorAll("[data-zoom]").forEach((button) => button.addEventListener("click", () => {
+            currentIndex = Number(button.dataset.zoom);
+            openModal();
+          }));
+          main.querySelectorAll(".design-card:has(.ops-preview)").forEach((card) => window.CashbackAdmin.bind(card));
+        }
         title = `${currentGroup.name} ／ ${currentGroup.pages[currentIndex].title}`;
-        main.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => goToStep(Number(button.dataset.step))));
-        main.querySelectorAll("[data-direction]").forEach((button) => button.addEventListener("click", () => goToStep(currentIndex + (button.dataset.direction === "prev" ? -1 : 1))));
-        main.querySelector('[data-action="zoom"]')?.addEventListener("click", openModal);
-        if (currentGroup.pages[currentIndex].interactive) window.CashbackAdmin.bind(main);
-        const activeStep = main.querySelector(".step-button.active");
-        const stepper = main.querySelector(".stepper");
-        stepper.scrollLeft = Math.max(0, activeStep.offsetLeft - stepper.offsetLeft - 15);
-        window.scrollTo(0, 0);
+        main.querySelectorAll(".design-card").forEach((card, index) => card.classList.toggle("linked-card", index === currentIndex));
+        if (currentIndex > 0 || previousGroup === currentGroup) {
+          const card = document.getElementById(`screen-${currentGroup.pages[currentIndex].id}`);
+          card.scrollIntoView({ block: "start" });
+          card.focus({ preventScroll: true });
+        } else window.scrollTo(0, 0);
       }
     }
     document.title = `${title} · 呆萌价返现功能`;
@@ -198,11 +207,6 @@
       if (active) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
-  }
-
-  function goToStep(index) {
-    if (!currentGroup || index < 0 || index >= currentGroup.pages.length) return;
-    location.hash = `${currentGroup.id}/${currentGroup.pages[index].id}`;
   }
 
   function updateZoom() {
@@ -253,7 +257,7 @@
     if (event.target.closest("a")) closeNavigation();
   });
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 1000) closeNavigation();
+    if (window.innerWidth > 900) closeNavigation();
   });
   document.getElementById("close-nav").addEventListener("click", () => { closeNavigation(); menu.focus(); });
   scrim.addEventListener("click", closeNavigation);
