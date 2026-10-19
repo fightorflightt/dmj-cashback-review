@@ -12,6 +12,13 @@
   let modalScale = 100;
   let restoreFocus = null;
   let toastTimer;
+  const previewRanges = new Map();
+  const rangeSamples = {
+    "本日": [2, 1, "16.25", "24.00"],
+    "本月": [12, 9, "156.25", "134.00"],
+    "上月": [8, 11, "300.00", "100.00"],
+    "总计": [20, 20, "456.25", "234.00"],
+  };
   const escape = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const href = (path) => `#${escape(path)}`;
 
@@ -94,6 +101,78 @@
     return `<div class="admin-source-frame ${zoomed ? "zoomed" : ""}"><img ${zoomed ? 'id="modal-image"' : ''} src="${item.image}" alt="${escape(item.title)} · 后台名称更新稿"><span class="admin-label ${type}">打款审核</span>${type === "review" ? '<span class="admin-label review-tab">打款审核</span>' : ''}</div>`;
   }
 
+  function hasMobileControls(group, item) {
+    return (group.id === "user-flow" && item.id === "initial") ||
+      (group.id === "agent-review" && ["managed", "manual"].includes(item.id));
+  }
+
+  function mobileImage(group, item, zoomed = false) {
+    const user = group.id === "user-flow";
+    const key = `${group.id}/${item.id}`;
+    const range = previewRanges.get(key) || "总计";
+    const labels = ["待生效(笔)", "审核中(笔)", "打款中(元)", "已打款(元)"];
+    return `<div class="mobile-prototype ${zoomed ? "zoomed" : ""}">
+      <div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}，可滚动查看">
+        <div class="mobile-source"><img ${zoomed ? 'id="modal-image"' : ''} src="${item.image}" alt="${escape(item.title)} · 交互更新稿" draggable="false">
+          ${user ? `<button class="prototype-paste" data-paste aria-label="粘贴订单号">粘贴</button><button class="prototype-alipay" data-set-alipay aria-label="设置支付宝">去设置 ›</button>` :
+            `<section class="agent-stat-overlay" data-stat-key="${key}" aria-label="返现概况">
+              <div class="agent-stat-header"><span>返现概况</span><div class="agent-range" role="group" aria-label="统计时间">${Object.keys(rangeSamples).map(label => `<button aria-pressed="${label === range}" data-range="${label}">${label}</button>`).join("")}</div></div>
+              <div class="agent-metrics" aria-live="polite">${labels.map((label, index) => `<div><strong data-stat-value>${rangeSamples[range][index]}</strong><span>${label}</span></div>`).join("")}</div>
+            </section>`}
+        </div>
+      </div>
+      ${user ? `<div class="phone-prompt" hidden role="dialog" aria-modal="true" aria-label="设置支付宝提示"><section><h3>提示</h3><p>请先设置支付宝，否则无法打款。</p><div><button data-dismiss-prompt>取消</button><button data-go-settings>去设置</button></div></section></div>` : ''}
+    </div>`;
+  }
+
+  function bindMobileControls(root) {
+    root.querySelectorAll(".mobile-prototype").forEach(preview => {
+      const prompt = preview.querySelector(".phone-prompt");
+      const paste = preview.querySelector("[data-paste]");
+      function closePrompt() {
+        prompt.hidden = true;
+        paste.focus({ preventScroll: true });
+      }
+      function goToSettings() {
+        if (prompt) prompt.hidden = true;
+        if (!modal.hidden) closeModal();
+        if (location.hash === "#user-flow/alipay") {
+          const settings = document.getElementById("screen-alipay");
+          settings.scrollIntoView({ block: "start" });
+          settings.focus({ preventScroll: true });
+        } else location.hash = "user-flow/alipay";
+      }
+      if (paste) {
+        paste.addEventListener("click", () => {
+          prompt.hidden = false;
+          prompt.querySelector("[data-go-settings]").focus({ preventScroll: true });
+        });
+        preview.querySelector("[data-dismiss-prompt]").addEventListener("click", closePrompt);
+        preview.querySelector("[data-go-settings]").addEventListener("click", goToSettings);
+        preview.querySelector("[data-set-alipay]").addEventListener("click", goToSettings);
+        prompt.addEventListener("keydown", event => {
+          if (event.key === "Escape") { event.stopPropagation(); closePrompt(); }
+          if (event.key === "Tab") {
+            event.stopPropagation();
+            event.preventDefault();
+            const buttons = [...prompt.querySelectorAll("button")];
+            buttons[(buttons.indexOf(document.activeElement) + 1) % buttons.length].focus({ preventScroll: true });
+          }
+        });
+      }
+      preview.querySelectorAll("[data-range]").forEach(button => button.addEventListener("click", () => {
+        const panel = button.closest("[data-stat-key]");
+        const range = button.dataset.range;
+        previewRanges.set(panel.dataset.statKey, range);
+        document.querySelectorAll("[data-stat-key]").forEach(instance => {
+          if (instance.dataset.statKey !== panel.dataset.statKey) return;
+          instance.querySelectorAll("[data-range]").forEach(control => control.setAttribute("aria-pressed", String(control.dataset.range === range)));
+          instance.querySelectorAll("[data-stat-value]").forEach((value, index) => { value.textContent = rangeSamples[range][index]; });
+        });
+      }));
+    });
+  }
+
   function designView(group) {
     return `${pageLead(group.section, group.name, group.description)}
       <div class="gallery-summary"><span>共 ${group.pages.length} 个画面，已全部展开</span><span>按编号从左到右、从上到下阅读</span></div>
@@ -104,9 +183,9 @@
     return `<article class="design-card ${group.mobile ? "" : "desktop-card"} ${item.id === "audit" ? "audit-card" : ""}" id="screen-${item.id}" aria-labelledby="title-${item.id}" tabindex="-1">
         <header class="design-card-heading"><span>${String(index + 1).padStart(2, "0")}</span><h2 id="title-${item.id}">${escape(item.title)}</h2></header>
         <section class="design-stage ${group.mobile ? "" : "desktop-stage"}" aria-label="设计原图预览">
-          <div class="stage-bar"><span>${group.mobile ? "小程序设计原图" : "运营后台更新稿"}</span>${item.interactive ? '' : `<button data-zoom="${index}" aria-label="放大查看${escape(item.title)}">⤢ 放大查看</button>`}</div>
-          <div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}，可滚动查看">${item.interactive ? window.CashbackAdmin.render(item.id === "audit") : group.mobile ? `<img src="${item.image}" alt="${escape(item.title)} · 返现设计原图" fetchpriority="high" draggable="false">` : adminImage(group, item)}</div>
-          <div class="screen-caption">${item.interactive ? "点击每行“审核”打开弹窗 · 可切换同意／拒绝并查看演示反馈" : group.mobile ? "长图可在画面内滚动 · 放大查看完整原图" : "后台名称已更新 · 放大查看完整画面"}</div>
+          <div class="stage-bar"><span>${group.mobile ? hasMobileControls(group, item) ? "小程序交互更新稿" : "小程序设计原图" : "运营后台更新稿"}</span>${item.interactive ? '' : `<button data-zoom="${index}" aria-label="放大查看${escape(item.title)}">⤢ 放大查看</button>`}</div>
+          ${hasMobileControls(group, item) ? mobileImage(group, item) : `<div class="screen-viewport" tabindex="0" aria-label="${escape(item.title)}，可滚动查看">${item.interactive ? window.CashbackAdmin.render(item.id === "audit") : group.mobile ? `<img src="${item.image}" alt="${escape(item.title)} · 返现设计原图" fetchpriority="high" draggable="false">` : adminImage(group, item)}</div>`}
+          <div class="screen-caption">${item.interactive ? "点击每行“审核”打开弹窗 · 可切换同意／拒绝并查看演示反馈" : hasMobileControls(group, item) ? group.id === "user-flow" ? "点击画面中的“粘贴”体验设置提示" : "可切换统计时间 · 数据为评审示例" : group.mobile ? "长图可在画面内滚动 · 放大查看完整原图" : "后台名称已更新 · 放大查看完整画面"}</div>
         </section>
         <aside class="notes" aria-label="功能和交互说明">
           <section class="card"><div class="note-eyebrow"><span>${group.mobile ? "设计原图" : "运营更新稿"}</span><span>${String(index + 1).padStart(2, "0")} / ${String(group.pages.length).padStart(2, "0")}</span></div><h2>${escape(item.title)}</h2><p class="purpose">${escape(item.purpose)}</p><div class="note-label">主要功能与操作</div>
@@ -156,6 +235,7 @@
             openModal();
           }));
           main.querySelectorAll(".design-card:has(.ops-preview)").forEach((card) => window.CashbackAdmin.bind(card));
+          bindMobileControls(main);
         }
         title = `${currentGroup.name} ／ ${currentGroup.pages[currentIndex].title}`;
         main.querySelectorAll(".design-card").forEach((card, index) => card.classList.toggle("linked-card", index === currentIndex));
@@ -181,6 +261,7 @@
     const base = currentGroup.mobile ? 375 : 1300;
     img.style.width = `${base * modalScale / 100}px`;
     img.closest(".admin-source-frame")?.style.setProperty("--image-width", `${base * modalScale / 100}px`);
+    img.closest(".mobile-prototype")?.style.setProperty("width", `${base * modalScale / 100}px`);
     document.getElementById("zoom-value").textContent = `${modalScale}%`;
     document.getElementById("zoom-out").disabled = modalScale <= 50;
     document.getElementById("zoom-in").disabled = modalScale >= 200;
@@ -189,7 +270,8 @@
   function openModal() {
     const item = currentGroup.pages[currentIndex];
     restoreFocus = document.activeElement;
-    document.getElementById("modal-scroll").innerHTML = currentGroup.mobile ? `<img id="modal-image" src="${item.image}" alt="${escape(item.title)}完整设计原图">` : adminImage(currentGroup, item, true);
+    document.getElementById("modal-scroll").innerHTML = hasMobileControls(currentGroup, item) ? mobileImage(currentGroup, item, true) : currentGroup.mobile ? `<img id="modal-image" src="${item.image}" alt="${escape(item.title)}完整设计原图">` : adminImage(currentGroup, item, true);
+    bindMobileControls(document.getElementById("modal-scroll"));
     document.getElementById("modal-title").textContent = item.title;
     modalScale = currentGroup.mobile ? 100 : (window.innerWidth < 700 ? 75 : 100);
     updateZoom();
